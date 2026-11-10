@@ -4,677 +4,362 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Онлайн-аэрохоккей</title>
-
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
-
+<title>Ronaldo Video Maker</title>
 <style>
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 body {
-    margin: 0;
-    min-height: 100vh;
-    background: #101827;
-    color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px;
+  margin: 0;
+  background: #080d18;
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
 }
 .container {
-    width: 100%;
-    max-width: 950px;
-    text-align: center;
+  max-width: 950px;
+  margin: auto;
 }
-h1 { margin: 5px 0 20px; color: #55d6ff; }
-.panel {
-    background: #1c293d;
-    border-radius: 15px;
-    padding: 18px;
-    margin-bottom: 15px;
-}
-input {
-    padding: 13px;
-    border: 0;
-    border-radius: 8px;
-    font-size: 18px;
-    width: 180px;
-    text-align: center;
-    text-transform: uppercase;
-}
-button {
-    padding: 13px 20px;
-    margin: 5px;
-    border: 0;
-    border-radius: 8px;
-    background: #168bd0;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-button:hover { background: #0872b4; }
-button:disabled { opacity: .5; cursor: not-allowed; }
-#status { color: #a8dfff; min-height: 24px; }
-#roomInfo { font-size: 20px; margin: 10px; }
-#score {
-    font-size: 28px;
-    font-weight: bold;
-    margin: 10px;
+h1 {
+  color: #ffca35;
+  font-size: 36px;
 }
 canvas {
-    width: 100%;
-    max-width: 900px;
-    aspect-ratio: 3 / 2;
-    background: #087d9b;
-    border: 5px solid #d8f7ff;
-    border-radius: 12px;
-    display: block;
-    touch-action: none;
+  width: 100%;
+  border-radius: 15px;
+  border: 2px solid #ffbd30;
+  background: #101b25;
+  margin-top: 20px;
 }
-#gameArea { display: none; }
-.small { color: #b9c8d8; font-size: 13px; }
+button {
+  background: #ffbd30;
+  color: #111;
+  border: 0;
+  padding: 16px 25px;
+  margin: 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 17px;
+  cursor: pointer;
+}
+button:hover {
+  background: #ffe078;
+}
+#status {
+  color: #45e99b;
+  font-size: 18px;
+  margin: 15px;
+}
+.subtitle {
+  color: #aab5c5;
+}
 </style>
 </head>
-
 <body>
 <div class="container">
-    <h1>🏒 ОНЛАЙН-АЭРОХОККЕЙ</h1>
 
-    <div class="panel" id="menu">
-        <h2>Играть онлайн</h2>
-        <button id="createBtn">Создать комнату</button>
-        <hr style="border-color:#40516a; margin:18px 0">
-        <p>Или введи код комнаты:</p>
-        <input id="roomCode" maxlength="6" placeholder="КОД">
-        <button id="joinBtn">Подключиться</button>
-        <p id="status">Создай комнату или подключись к другу</p>
-    </div>
+<h1>⚽ RONALDO VIDEO MAKER</h1>
+<p class="subtitle">
+Создай свой футбольный хайлайт!
+</p>
 
-    <div class="panel" id="gameArea">
-        <div id="roomInfo">Комната: <b id="codeLabel"></b></div>
-        <div id="score">🔵 0 : 0 🔴</div>
-        <p id="gameMessage">Ожидание второго игрока...</p>
-        <canvas id="game" width="900" height="600"></canvas>
-        <p class="small" id="controls">
-            Перемещай свою ракетку пальцем или мышкой по своей половине поля.
-        </p>
-        <button id="restartBtn" style="display:none">Начать заново</button>
-        <button id="leaveBtn">Выйти из комнаты</button>
-    </div>
+<canvas id="video" width="1280" height="720"></canvas>
+
+<div>
+  <button onclick="createVideo()">
+    🎬 СОЗДАТЬ ВИДЕО
+  </button>
+  <button onclick="preview()">
+    ▶ ПРЕДПРОСМОТР
+  </button>
+</div>
+
+<div id="status">Готов к созданию видео!</div>
+
+<a id="download" style="display:none;color:#ffca35;font-size:20px">
+  ⬇ Скачать видео
+</a>
+
 </div>
 
 <script>
-// Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyBzEEtmlQg48lWb-j0X5_WSOXLwQK0FfWw",
-    authDomain: "hokey-2ca64.firebaseapp.com",
-    databaseURL: "https://hokey-2ca64-default-rtdb.firebaseio.com/",
-    projectId: "hokey-2ca64",
-    storageBucket: "hokey-2ca64.firebasestorage.app",
-    messagingSenderId: "1016463264871",
-    appId: "1:1016463264871:web:ecbdf72a676076e8e758c2",
-    measurementId: "G-YW25QFG8QD"
-};
-
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-const canvas = document.getElementById("game");
+const canvas = document.getElementById("video");
 const ctx = canvas.getContext("2d");
 
-const W = 900;
-const H = 600;
-const GOAL_WIDTH = 250;
-const PADDLE_R = 29;
-const PUCK_R = 17;
+const W = 1280;
+const H = 720;
+const duration = 15;
 
-let uid = "player_" + Math.random().toString(36).slice(2);
-let roomCode = "";
-let role = "";
-let roomRef = null;
-let metaRef = null;
-let gameRef = null;
-let inputRef = null;
+let animationId;
+let startTime = 0;
+let recorder;
 
-let game = null;
-let remoteInput = { x: 450, y: 100 };
-let myInput = { x: 450, y: 500 };
+function background() {
+  const gradient = ctx.createLinearGradient(0,0,W,H);
+  gradient.addColorStop(0,"#061629");
+  gradient.addColorStop(0.5,"#123b37");
+  gradient.addColorStop(1,"#090d18");
 
-let loopId = null;
-let lastPublish = 0;
-let goalTimer = null;
-let listeners = [];
-let connectedRef = null;
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0,0,W,H);
 
-const $ = id => document.getElementById(id);
+  // Световые полосы
+  for(let i=0;i<12;i++) {
+    ctx.fillStyle = "rgba(255,190,40,0.07)";
+    ctx.fillRect(i*120,0,4,H);
+  }
 
-function setStatus(message) {
-    $("status").textContent = message;
+  // Футбольное поле
+  ctx.strokeStyle = "rgba(255,255,255,0.22)";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(100,100,1080,520);
+
+  ctx.beginPath();
+  ctx.moveTo(640,100);
+  ctx.lineTo(640,620);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(640,360,100,0,Math.PI*2);
+  ctx.stroke();
 }
 
-function setMessage(message) {
-    $("gameMessage").textContent = message;
+function text(value,y,size,color,alpha=1) {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `900 ${size}px Arial`;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 25;
+  ctx.fillStyle = color;
+  ctx.fillText(value,W/2,y);
+  ctx.restore();
 }
 
-function randomCode() {
-    return String(Math.floor(100000 + Math.random() * 900000));
+function ball(x,y,rotation=0) {
+  ctx.save();
+  ctx.translate(x,y);
+  ctx.rotate(rotation);
+
+  ctx.fillStyle = "white";
+  ctx.beginPath();
+  ctx.arc(0,0,35,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.strokeStyle = "#111";
+  ctx.lineWidth = 5;
+  ctx.stroke();
+
+  ctx.fillStyle = "#111";
+  ctx.beginPath();
+  ctx.arc(0,0,12,0,Math.PI*2);
+  ctx.fill();
+
+  ctx.restore();
 }
 
-function initialGame() {
-    return {
-        status: "waiting",
-        x: 450,
-        y: 300,
-        vx: 0,
-        vy: 0,
-        p1x: 450,
-        p1y: 500,
-        p2x: 450,
-        p2y: 100,
-        score1: 0,
-        score2: 0,
-        message: "Ожидание второго игрока..."
-    };
-}
+function particles(t) {
+  for(let i=0;i<45;i++) {
+    const x = (i*173+t*90)%W;
+    const y = (i*97+t*35)%H;
 
-// Создание комнаты
-async function createRoom() {
-    try {
-        $("createBtn").disabled = true;
-        setStatus("Создаём комнату...");
-
-        let code = randomCode();
-        let ref = db.ref("rooms/" + code);
-        let result = await ref.transaction(current => {
-            if (current === null) {
-                return {
-                    meta: {
-                        hostId: uid,
-                        guestId: "",
-                        hostOnline: true,
-                        guestOnline: false
-                    },
-                    game: initialGame(),
-                    inputs: {}
-                };
-            }
-            return;
-        });
-
-        if (!result.committed) {
-            $("createBtn").disabled = false;
-            setStatus("Не удалось создать комнату. Попробуй ещё раз.");
-            return;
-        }
-
-        roomCode = code;
-        role = "host";
-        roomRef = ref;
-        metaRef = ref.child("meta");
-        gameRef = ref.child("game");
-        inputRef = ref.child("inputs/p2");
-
-        game = initialGame();
-        myInput = { x: 450, y: 500 };
-
-        await enterGame();
-        watchHost();
-        setupPresence("hostOnline");
-
-        setMessage("Отправь другу код комнаты: " + code);
-    } catch (error) {
-        console.error(error);
-        setStatus("Ошибка Firebase: " + error.message);
-        $("createBtn").disabled = false;
-    }
-}
-
-// Подключение к комнате
-async function joinRoom() {
-    try {
-        let code = $("roomCode").value.trim();
-        if (!/^\d{6}$/.test(code)) {
-            setStatus("Введи правильный шестизначный код.");
-            return;
-        }
-
-        $("joinBtn").disabled = true;
-        setStatus("Подключаемся...");
-
-        let ref = db.ref("rooms/" + code);
-        let meta = ref.child("meta");
-
-        let result = await meta.transaction(current => {
-            if (!current || !current.hostId || current.guestId) {
-                return;
-            }
-            current.guestId = uid;
-            return current;
-        });
-
-        if (!result.committed) {
-            $("joinBtn").disabled = false;
-            setStatus("Комната не найдена или уже занята.");
-            return;
-        }
-
-        roomCode = code;
-        role = "guest";
-        roomRef = ref;
-        metaRef = meta;
-        gameRef = ref.child("game");
-        inputRef = ref.child("inputs/p2");
-
-        myInput = { x: 450, y: 100 };
-
-        await enterGame();
-        watchGuest();
-        setupPresence("guestOnline");
-
-    } catch (error) {
-        console.error(error);
-        setStatus("Ошибка подключения: " + error.message);
-        $("joinBtn").disabled = false;
-    }
-}
-
-// Вход в игровое окно
-async function enterGame() {
-    $("menu").style.display = "none";
-    $("gameArea").style.display = "block";
-    $("codeLabel").textContent = roomCode;
-    $("restartBtn").style.display = role === "host" ? "inline-block" : "none";
-    setMessage("Подключение к игре...");
-    draw();
-}
-
-// Отслеживание подключения
-function setupPresence(field) {
-    connectedRef = db.ref(".info/connected");
-
-    const handler = connectedRef.on("value", snap => {
-        if (snap.val() === true && metaRef) {
-            const onlineRef = metaRef.child(field);
-            onlineRef.onDisconnect().set(false);
-            onlineRef.set(true);
-        }
-    });
-
-    listeners.push([connectedRef, "value", handler]);
-}
-
-// Логика ведущего
-function watchHost() {
-    const metaHandler = metaRef.on("value", snap => {
-        const data = snap.val();
-        if (!data) return;
-
-        if (data.guestOnline === true) {
-            if (game && game.status === "waiting") {
-                game.status = "playing";
-                game.message = "Игра началась!";
-                gameRef.set(game);
-                startLoop();
-            }
-        } else {
-            if (game && game.status === "playing") {
-                game.status = "waiting";
-                game.message = "Второй игрок отключился. Ожидаем...";
-                game.vx = 0;
-                game.vy = 0;
-                gameRef.set(game);
-            }
-        }
-    });
-    listeners.push([metaRef, "value", metaHandler]);
-
-    const inputHandler = inputRef.on("value", snap => {
-        if (snap.val()) remoteInput = snap.val();
-    });
-    listeners.push([inputRef, "value", inputHandler]);
-}
-
-// Логика гостя
-function watchGuest() {
-    const gameHandler = gameRef.on("value", snap => {
-        if (!snap.val()) return;
-        game = snap.val();
-        updateScore();
-        setMessage(game.message || "");
-        draw();
-
-        if (game.status === "finished") {
-            setMessage(game.message);
-        }
-    });
-    listeners.push([gameRef, "value", gameHandler]);
-
-    const metaHandler = metaRef.on("value", snap => {
-        const data = snap.val();
-        if (data && data.hostOnline === false) {
-            setMessage("Создатель комнаты отключился.");
-        }
-    });
-    listeners.push([metaRef, "value", metaHandler]);
-}
-
-// Отправка позиции своей ракетки
-function sendInput() {
-    if (!inputRef) return;
-    inputRef.set(myInput);
-}
-
-// Игровой цикл ведущего
-function startLoop() {
-    if (loopId) return;
-
-    function frame(timestamp) {
-        if (role !== "host" || !game) {
-            loopId = null;
-            return;
-        }
-
-        if (game.status === "playing") {
-            updatePhysics();
-
-            if (timestamp - lastPublish > 35) {
-                lastPublish = timestamp;
-                gameRef.set(game);
-            }
-        }
-
-        draw();
-        loopId = requestAnimationFrame(frame);
-    }
-
-    loopId = requestAnimationFrame(frame);
-}
-
-// Физика шайбы
-function updatePhysics() {
-    game.p1x = myInput.x;
-    game.p1y = myInput.y;
-    game.p2x = remoteInput.x;
-    game.p2y = remoteInput.y;
-
-    game.x += game.vx;
-    game.y += game.vy;
-
-    game.vx *= 0.995;
-    game.vy *= 0.995;
-
-    // Столкновения со стенами
-    if (game.x < PUCK_R) {
-        game.x = PUCK_R;
-        game.vx = Math.abs(game.vx);
-    }
-    if (game.x > W - PUCK_R) {
-        game.x = W - PUCK_R;
-        game.vx = -Math.abs(game.vx);
-    }
-
-    // Верхние и нижние ворота
-    if (game.y < PUCK_R) {
-        if (Math.abs(game.x - W / 2) < GOAL_WIDTH / 2) {
-            scoreGoal(1);
-            return;
-        }
-        game.y = PUCK_R;
-        game.vy = Math.abs(game.vy);
-    }
-
-    if (game.y > H - PUCK_R) {
-        if (Math.abs(game.x - W / 2) < GOAL_WIDTH / 2) {
-            scoreGoal(2);
-            return;
-        }
-        game.y = H - PUCK_R;
-        game.vy = -Math.abs(game.vy);
-    }
-
-    // Столкновения с ракетками
-    collidePaddle(game.p1x, game.p1y);
-    collidePaddle(game.p2x, game.p2y);
-
-    // Ограничение скорости
-    const speed = Math.hypot(game.vx, game.vy);
-    if (speed > 15) {
-        game.vx = game.vx / speed * 15;
-        game.vy = game.vy / speed * 15;
-    }
-}
-
-function collidePaddle(px, py) {
-    let dx = game.x - px;
-    let dy = game.y - py;
-    let distance = Math.hypot(dx, dy);
-    let minDistance = PADDLE_R + PUCK_R;
-
-    if (distance < minDistance && distance > 0) {
-        let nx = dx / distance;
-        let ny = dy / distance;
-
-        game.x = px + nx * minDistance;
-        game.y = py + ny * minDistance;
-
-        let dot = game.vx * nx + game.vy * ny;
-        if (dot < 0) {
-            game.vx -= 2 * dot * nx;
-            game.vy -= 2 * dot * ny;
-        }
-
-        game.vx += nx * 1.2;
-        game.vy += ny * 1.2;
-    }
-}
-
-// Гол
-function scoreGoal(player) {
-    if (game.status !== "playing") return;
-
-    game.status = "goal";
-    if (player === 1) game.score1++;
-    else game.score2++;
-
-    game.vx = 0;
-    game.vy = 0;
-    game.message = player === 1 ? "ГОЛ! Синий игрок забивает!" : "ГОЛ! Красный игрок забивает!";
-
-    gameRef.set(game);
-
-    if (game.score1 >= 5 || game.score2 >= 5) {
-        game.status = "finished";
-        game.message = game.score1 >= 5
-            ? "🏆 Победил синий игрок!"
-            : "🏆 Победил красный игрок!";
-        gameRef.set(game);
-        return;
-    }
-
-    clearTimeout(goalTimer);
-    goalTimer = setTimeout(() => {
-        if (!game || game.status !== "goal") return;
-        game.x = W / 2;
-        game.y = H / 2;
-        game.vx = 0;
-        game.vy = 0;
-        game.status = "playing";
-        game.message = "Игра продолжается!";
-        gameRef.set(game);
-    }, 1700);
-}
-
-// Рисование поля
-function draw() {
-    if (!game) return;
-
-    ctx.clearRect(0, 0, W, H);
-
-    // Поле
-    ctx.fillStyle = "#087d9b";
-    ctx.fillRect(0, 0, W, H);
-
-    // Центральная линия и круг
-    ctx.strokeStyle = "rgba(255,255,255,.65)";
-    ctx.lineWidth = 4;
+    ctx.fillStyle = "rgba(255,195,55,0.6)";
     ctx.beginPath();
-    ctx.moveTo(0, H / 2);
-    ctx.lineTo(W, H / 2);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(W / 2, H / 2, 90, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // Ворота
-    ctx.fillStyle = "#142238";
-    ctx.fillRect(W / 2 - GOAL_WIDTH / 2, 0, GOAL_WIDTH, 12);
-    ctx.fillRect(W / 2 - GOAL_WIDTH / 2, H - 12, GOAL_WIDTH, 12);
-
-    // Ракетки
-    drawPaddle(game.p1x, game.p1y, "#168bff");
-    drawPaddle(game.p2x, game.p2y, "#ff4242");
-
-    // Шайба
-    ctx.beginPath();
-    ctx.arc(game.x, game.y, PUCK_R, 0, Math.PI * 2);
-    ctx.fillStyle = "#f5f7fa";
+    ctx.arc(x,y,2+(i%4),0,Math.PI*2);
     ctx.fill();
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#26394c";
-    ctx.stroke();
-
-    // Подписи
-    ctx.font = "bold 22px Arial";
-    ctx.fillStyle = "white";
-    ctx.fillText("КРАСНЫЙ", 20, 35);
-    ctx.fillText("СИНИЙ", 20, H - 20);
-
-    updateScore();
+  }
 }
 
-function drawPaddle(x, y, color) {
+function draw(t) {
+  background();
+  particles(t);
+
+  // Сцена 1
+  if(t<3) {
+    text("THE LEGEND",270,85,"#ffffff",
+      Math.min(1,t));
+
+    text("CRISTIANO",370,105,"#ffca35",
+      Math.min(1,t));
+
+    text("RONALDO",480,105,"#ffca35",
+      Math.min(1,t));
+
+    ball(
+      640+Math.sin(t*4)*150,
+      590,
+      t*4
+    );
+  }
+
+  // Сцена 2
+  else if(t<7) {
+    const p=(t-3)/4;
+
+    text("CRISTIANO RONALDO",220,65,"#ffffff");
+
+    text("PORTUGAL",340,45,"#ffca35");
+
+    // Силуэт футболиста
+    ctx.save();
+    ctx.translate(640,450-p*90);
+
+    ctx.fillStyle="#ffca35";
     ctx.beginPath();
-    ctx.arc(x, y, PADDLE_R, 0, Math.PI * 2);
-    ctx.fillStyle = color;
+    ctx.arc(0,-170,48,0,Math.PI*2);
     ctx.fill();
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "white";
+
+    ctx.fillRect(-65,-110,130,150);
+
+    ctx.strokeStyle="#ffffff";
+    ctx.lineWidth=35;
+    ctx.lineCap="round";
+
+    ctx.beginPath();
+    ctx.moveTo(-35,20);
+    ctx.lineTo(-100,130);
+    ctx.moveTo(35,20);
+    ctx.lineTo(100,130);
     ctx.stroke();
+
+    ctx.restore();
+
+    text("NO LIMITS",630,65,"#ffffff");
+  }
+
+  // Сцена 3
+  else if(t<11) {
+    const p=(t-7)/4;
+
+    text("SIUUUUUU!",300,115,"#ffca35",
+      Math.min(1,p*3));
+
+    ctx.save();
+    ctx.translate(640,440);
+    ctx.rotate(p*Math.PI*2);
+
+    ctx.strokeStyle="#ffca35";
+    ctx.lineWidth=12;
+    ctx.beginPath();
+    ctx.arc(0,0,130,0,Math.PI*2);
+    ctx.stroke();
+
+    ctx.restore();
+
+    text("THE CHAMPION",590,55,"#ffffff");
+  }
+
+  // Финальная сцена
+  else {
+    const alpha=Math.min(1,(t-11)*2);
+
+    text("CRISTIANO RONALDO",260,75,
+      "#ffca35",alpha);
+
+    text("THE GOAT",390,120,
+      "#ffffff",alpha);
+
+    text("LEGEND NEVER DIES",510,45,
+      "#ffca35",alpha);
+
+    ball(640,600, t*5);
+  }
+
+  // Таймер ролика
+  ctx.fillStyle="rgba(255,255,255,0.7)";
+  ctx.font="22px Arial";
+  ctx.textAlign="right";
+  ctx.fillText("RONALDO EDIT",1160,60);
 }
 
-function updateScore() {
-    if (!game) return;
-    $("score").textContent = "🔵 " + game.score1 + " : " + game.score2 + " 🔴";
+function animate() {
+  const t=(performance.now()-startTime)/1000;
+  draw(t);
+
+  if(t<duration) {
+    animationId=requestAnimationFrame(animate);
+  }
 }
 
-// Перемещение мышью и пальцем
-canvas.addEventListener("pointermove", event => {
-    if (!game || (game.status !== "playing" && game.status !== "waiting")) return;
+function preview() {
+  cancelAnimationFrame(animationId);
+  startTime=performance.now();
+  animate();
+  document.getElementById("status").textContent=
+    "▶ Предпросмотр видео...";
+}
 
-    const rect = canvas.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / rect.width * W;
-    const y = (event.clientY - rect.top) / rect.height * H;
+async function createVideo() {
+  if(!canvas.captureStream ||
+     typeof MediaRecorder==="undefined") {
+    alert("Твой браузер не поддерживает запись видео.");
+    return;
+  }
 
-    myInput.x = Math.max(PADDLE_R, Math.min(W - PADDLE_R, x));
+  cancelAnimationFrame(animationId);
 
-    if (role === "host") {
-        myInput.y = Math.max(H / 2 + PADDLE_R, Math.min(H - PADDLE_R, y));
-        if (game) {
-            game.p1x = myInput.x;
-            game.p1y = myInput.y;
-        }
-        draw();
+  const stream=canvas.captureStream(30);
+
+  let mime="video/webm;codecs=vp9";
+
+  if(!MediaRecorder.isTypeSupported(mime)) {
+    mime="video/webm";
+  }
+
+  recorder=new MediaRecorder(stream,{
+    mimeType:mime
+  });
+
+  const chunks=[];
+
+  recorder.ondataavailable=e=>{
+    if(e.data.size>0) chunks.push(e.data);
+  };
+
+  recorder.onstop=()=>{
+    const blob=new Blob(chunks,{
+      type:"video/webm"
+    });
+
+    const url=URL.createObjectURL(blob);
+    const link=document.getElementById("download");
+
+    link.href=url;
+    link.download="ronaldo-video.webm";
+    link.style.display="inline-block";
+
+    document.getElementById("status").textContent=
+      "✅ Видео создано! Нажми «Скачать видео».";
+
+    stream.getTracks().forEach(track=>track.stop());
+  };
+
+  document.getElementById("download").style.display="none";
+
+  document.getElementById("status").textContent=
+    "🎬 Создаём видео... Подожди 15 секунд.";
+
+  recorder.start();
+
+  startTime=performance.now();
+
+  function recordFrame() {
+    const t=(performance.now()-startTime)/1000;
+    draw(t);
+
+    if(t<duration) {
+      animationId=requestAnimationFrame(recordFrame);
     } else {
-        myInput.y = Math.max(PADDLE_R, Math.min(H / 2 - PADDLE_R, y));
-        sendInput();
+      recorder.stop();
     }
-});
+  }
 
-canvas.addEventListener("pointerdown", event => {
-    canvas.setPointerCapture(event.pointerId);
-    canvas.dispatchEvent(new PointerEvent("pointermove", event));
-});
-
-// Перезапуск матча
-async function restartGame() {
-    if (role !== "host" || !game) return;
-
-    clearTimeout(goalTimer);
-
-    game = initialGame();
-    game.p1x = myInput.x;
-    game.p1y = myInput.y;
-    game.p2x = remoteInput.x;
-    game.p2y = remoteInput.y;
-
-    await gameRef.set(game);
-
-    if (loopId) cancelAnimationFrame(loopId);
-    loopId = null;
-
-    setMessage("Матч перезапущен!");
-    startLoop();
+  recordFrame();
 }
 
-// Выход из комнаты
-async function leaveRoom() {
-    try {
-        if (loopId) cancelAnimationFrame(loopId);
-        loopId = null;
-        clearTimeout(goalTimer);
-
-        for (const [ref, event, handler] of listeners) {
-            ref.off(event, handler);
-        }
-        listeners = [];
-
-        if (connectedRef) {
-            connectedRef.off();
-            connectedRef = null;
-        }
-
-        if (metaRef) {
-            if (role === "host") {
-                await metaRef.child("hostOnline").set(false);
-            } else {
-                await metaRef.update({
-                    guestId: "",
-                    guestOnline: false
-                });
-            }
-        }
-
-        roomCode = "";
-        role = "";
-        game = null;
-        roomRef = null;
-        metaRef = null;
-        gameRef = null;
-        inputRef = null;
-
-        $("gameArea").style.display = "none";
-        $("menu").style.display = "block";
-        $("createBtn").disabled = false;
-        $("joinBtn").disabled = false;
-        $("roomCode").value = "";
-        setStatus("Создай комнату или подключись к другу.");
-
-    } catch (error) {
-        console.error(error);
-        setStatus("Ошибка выхода: " + error.message);
-    }
-}
-
-$("createBtn").addEventListener("click", createRoom);
-$("joinBtn").addEventListener("click", joinRoom);
-$("restartBtn").addEventListener("click", restartGame);
-$("leaveBtn").addEventListener("click", leaveRoom);
-
-// Начальное отображение
-draw();
+draw(0);
 </script>
 </body>
 </html>
