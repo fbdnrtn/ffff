@@ -3,709 +3,429 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Угадай игрока CS2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>КАЗИНО КВАРТИРЫ</title>
 
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 20px;
-  background: #10131c;
-  color: white;
-  font-family: Arial, sans-serif;
-  text-align: center;
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle, #29204b, #090713);
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
 }
 
 .container {
-  max-width: 950px;
-  margin: auto;
+    max-width: 750px;
+    margin: auto;
 }
 
 h1 {
-  color: #f5a623;
-  font-size: clamp(28px, 5vw, 43px);
+    color: #ffd447;
+    font-size: clamp(30px, 6vw, 48px);
+    text-shadow: 0 0 20px #ffae00;
 }
 
-.subtitle { color: #aab2c0; }
+.subtitle {
+    color: #c7bddc;
+}
 
 .panel {
-  background: #1c2332;
-  padding: 25px;
-  border-radius: 18px;
-  margin-top: 20px;
-  border: 1px solid #343e52;
+    background: #211a36;
+    border: 2px solid #7355a8;
+    border-radius: 22px;
+    padding: 25px;
+    margin-top: 22px;
+    box-shadow: 0 0 30px #0008;
 }
 
-.stats {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 15px;
-  font-size: 18px;
+.balance {
+    font-size: 27px;
+    color: #ffd447;
+    font-weight: bold;
+    margin: 15px;
 }
 
-.nickname {
-  font-size: clamp(35px, 7vw, 60px);
-  color: #ffb52e;
-  font-weight: bold;
-  margin: 25px 0;
+.reels {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 30px 0;
 }
 
-.players {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
+.reel {
+    width: 125px;
+    height: 125px;
+    background: linear-gradient(#fff, #ddd);
+    border: 5px solid #e9b943;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 65px;
+    color: black;
+    box-shadow: 0 0 20px #ffc40055;
 }
 
-.player {
-  background: #293449;
-  border: 3px solid transparent;
-  border-radius: 15px;
-  overflow: hidden;
-  cursor: pointer;
-  padding: 0;
-  color: white;
-  transition: .2s;
-  min-width: 0;
+button {
+    border: none;
+    border-radius: 13px;
+    padding: 16px 25px;
+    margin: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-.player:hover:not(:disabled) {
-  transform: translateY(-5px);
-  border-color: #ffb52e;
+.spin {
+    background: linear-gradient(135deg, #ffdc52, #ff9200);
+    color: #251500;
+    font-size: 23px;
+    padding: 19px 45px;
+    box-shadow: 0 5px 20px #ffae0055;
 }
 
-.player img {
-  width: 100%;
-  height: 330px;
-  object-fit: cover;
-  display: block;
-  background: #343e52;
+.spin:hover {
+    transform: scale(1.05);
 }
 
-.player span {
-  display: block;
-  padding: 15px;
-  font-size: 18px;
-  font-weight: bold;
+button:disabled {
+    opacity: .5;
+    cursor: not-allowed;
 }
 
-.player.correct {
-  border-color: #20d889;
-}
-
-.player.wrong {
-  border-color: #ff4545;
-}
-
-.player:disabled {
-  cursor: default;
-}
-
-button.action {
-  background: #f5a623;
-  color: #171717;
-  padding: 14px 25px;
-  border: none;
-  border-radius: 10px;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 12px;
-}
-
-button.action:hover {
-  background: #ffc45e;
+.secondary {
+    background: #554276;
+    color: white;
 }
 
 #message {
-  min-height: 35px;
-  font-size: 20px;
-  margin: 20px 0;
+    min-height: 55px;
+    font-size: 21px;
+    font-weight: bold;
+    margin: 20px 0;
 }
 
-.hidden { display: none !important; }
-
-#result { display: none; }
-
-.small {
-  color: #8995a8;
-  font-size: 13px;
-  margin-top: 25px;
+.green {
+    color: #43ed9b;
 }
 
-#progress {
-  height: 9px;
-  background: #343e52;
-  border-radius: 20px;
-  overflow: hidden;
-  margin: 20px 0;
+.red {
+    color: #ff6262;
 }
 
-#progressBar {
-  height: 100%;
-  width: 0%;
-  background: #f5a623;
-  transition: width .3s;
+.rules {
+    color: #c9bedc;
+    text-align: left;
+    line-height: 1.9;
 }
 
-@media(max-width: 550px) {
-  body { padding: 10px; }
-  .panel { padding: 13px; }
-  .players { gap: 9px; }
-  .player img { height: 210px; }
-  .player span { font-size: 14px; }
+.prize {
+    color: #ffd447;
+    font-weight: bold;
+}
+
+@media(max-width: 480px) {
+    .reel {
+        width: 90px;
+        height: 100px;
+        font-size: 48px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-<h1>🎯 УГАДАЙ ИГРОКА CS2</h1>
+<h1>🎰 КАЗИНО КВАРТИРЫ</h1>
+<p class="subtitle">Испытай удачу и собери комбинацию!</p>
 
-<p class="subtitle">
-Проверь, насколько хорошо ты знаешь профессиональную сцену Counter-Strike 2!
-</p>
+<div class="panel">
 
-<div class="panel" id="game">
+    <div>ТВОЙ БАЛАНС</div>
 
-  <div class="stats">
-    <div>🏆 Очки: <b id="score">0</b></div>
-    <div>📊 Вопрос: <b id="round">1/20</b></div>
-    <div>🔥 Серия: <b id="streak">0</b></div>
-  </div>
+    <div class="balance">
+        🏠 <span id="balance">1000</span> квартир
+    </div>
 
-  <div id="progress">
-    <div id="progressBar"></div>
-  </div>
+    <div>Стоимость вращения: 10 квартир</div>
 
-  <p>Кто из этих игроков имеет данный никнейм?</p>
+    <div class="reels">
+        <div class="reel" id="reel1">🍒</div>
+        <div class="reel" id="reel2">🍋</div>
+        <div class="reel" id="reel3">💎</div>
+    </div>
 
-  <div class="nickname" id="nickname">s1mple</div>
+    <button class="spin" id="spinButton" onclick="spin()">
+        🎰 КРУТИТЬ!
+    </button>
 
-  <div class="players" id="players"></div>
+    <div id="message">
+        Нажми кнопку, чтобы начать!
+    </div>
 
-  <div id="message"></div>
+    <button class="secondary" onclick="bonus()">
+        🎁 Получить бонус
+    </button>
 
-  <button class="action hidden" id="next">
-    Следующий вопрос →
-  </button>
-
-</div>
-
-<div class="panel" id="result">
-
-  <h2>🏆 ИГРА ОКОНЧЕНА!</h2>
-
-  <h1 id="finalScore">0/20</h1>
-
-  <p id="comment"></p>
-
-  <button class="action" onclick="restart()">
-    🔄 Играть заново
-  </button>
+    <button class="secondary" onclick="resetGame()">
+        🔄 Сбросить игру
+    </button>
 
 </div>
 
-<p class="small">
-CS2 PLAYER QUIZ • 20 PROFESSIONAL PLAYERS
-</p>
+<div class="panel">
+
+    <h2>🏆 ТАБЛИЦА ВЫИГРЫШЕЙ</h2>
+
+    <div class="rules">
+        🍒 🍒 🍒 — <span class="prize">30 квартир</span><br>
+        🍋 🍋 🍋 — <span class="prize">50 квартир</span><br>
+        🍇 🍇 🍇 — <span class="prize">100 квартир</span><br>
+        🔔 🔔 🔔 — <span class="prize">200 квартир</span><br>
+        💎 💎 💎 — <span class="prize">500 квартир</span><br>
+        7️⃣ 7️⃣ 7️⃣ — <span class="prize">1000 квартир</span><br>
+        Любые две одинаковые — <span class="prize">5 квартир</span>
+    </div>
+
+</div>
+
+<div class="panel">
+    <h2>📊 СТАТИСТИКА</h2>
+    <p>Всего вращений: <b id="spins">0</b></p>
+    <p>Выигрышей: <b id="wins">0</b></p>
+    <p>Заработано квартир: <b id="earned">0</b></p>
+</div>
+
+<p class="subtitle">CASINO APARTMENTS • DEMO EDITION</p>
 
 </div>
 
 <script>
 
-// ==================================
-// БАЗА ИГРОКОВ — 20 ПРОФЕССИОНАЛОВ
-// ==================================
+// НАСТРОЙКИ
 
-const playersData = [
+const COST = 10;
 
-  {
-    name: "s1mple",
-    real: "Oleksandr Kostyliev"
-  },
-  {
-    name: "ZywOo",
-    real: "Mathieu Herbaut"
-  },
-  {
-    name: "donk",
-    real: "Danil Kryshkovets"
-  },
-  {
-    name: "m0NESY",
-    real: "Ilya Osipov"
-  },
-  {
-    name: "ropz",
-    real: "Robin Kool"
-  },
-  {
-    name: "sh1ro",
-    real: "Dmitry Sokolov"
-  },
-  {
-    name: "NiKo",
-    real: "Nikola Kovac"
-  },
-  {
-    name: "frozen",
-    real: "David Cernansky"
-  },
-  {
-    name: "b1t",
-    real: "Valeriy Vakhovskiy"
-  },
-  {
-    name: "Twistzz",
-    real: "Russel Van Dulken"
-  },
-  {
-    name: "XANTARES",
-    real: "Ismailcan Dortkardes"
-  },
-  {
-    name: "YEKINDAR",
-    real: "Mareks Galinskis"
-  },
-  {
-    name: "KSCERATO",
-    real: "Kaike Cerato"
-  },
-  {
-    name: "Spinx",
-    real: "Lotan Giladi"
-  },
-  {
-    name: "flameZ",
-    real: "Shahar Shushan"
-  },
-  {
-    name: "molodoy",
-    real: "Danil Golubenko"
-  },
-  {
-    name: "mezii",
-    real: "William Merriman"
-  },
-  {
-    name: "Senzu",
-    real: "Azbayar Munkhbold"
-  },
-  {
-    name: "xertioN",
-    real: "Dorian Berman"
-  },
-  {
-    name: "torzsi",
-    real: "Adam Torzsas"
-  }
-
+const symbols = [
+    "🍒",
+    "🍋",
+    "🍇",
+    "🔔",
+    "💎",
+    "7️⃣"
 ];
 
-// ==================================
-// НАСТРОЙКИ ИГРЫ
-// ==================================
+let balance = Number(localStorage.getItem("apartments")) || 1000;
+let spins = Number(localStorage.getItem("spins")) || 0;
+let wins = Number(localStorage.getItem("wins")) || 0;
+let earned = Number(localStorage.getItem("earned")) || 0;
 
-const TOTAL = 20;
+let busy = false;
+let bonusUsed = localStorage.getItem("bonusUsed") === "true";
 
-let score = 0;
-let round = 0;
-let streak = 0;
-let questions = [];
-let currentPlayer = null;
-let answered = false;
-
-const imageCache = {};
+// ЭЛЕМЕНТЫ
 
 const $ = id => document.getElementById(id);
 
-// ==================================
-// ПЕРЕМЕШИВАНИЕ
-// ==================================
-
-function shuffle(array) {
-  const result = [...array];
-
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [result[i], result[j]] =
-      [result[j], result[i]];
-  }
-
-  return result;
+function save() {
+    localStorage.setItem("apartments", balance);
+    localStorage.setItem("spins", spins);
+    localStorage.setItem("wins", wins);
+    localStorage.setItem("earned", earned);
+    localStorage.setItem("bonusUsed", bonusUsed);
 }
 
-// ==================================
-// ПОИСК ФОТОГРАФИЙ
-// Wikimedia Commons
-// ==================================
+function update() {
+    $("balance").textContent = balance;
+    $("spins").textContent = spins;
+    $("wins").textContent = wins;
+    $("earned").textContent = earned;
+    save();
+}
 
-async function getPhoto(player) {
+// ВЫИГРЫШИ
 
-  if (imageCache[player.name] !== undefined) {
-    return imageCache[player.name];
-  }
+function getPrize(a, b, c) {
 
-  try {
+    if (a === b && b === c) {
 
-    const query = encodeURIComponent(
-      '"' + player.real + '" Counter-Strike'
-    );
+        const prizes = {
+            "🍒": 30,
+            "🍋": 50,
+            "🍇": 100,
+            "🔔": 200,
+            "💎": 500,
+            "7️⃣": 1000
+        };
 
-    const url =
-      "https://commons.wikimedia.org/w/api.php" +
-      "?action=query" +
-      "&generator=search" +
-      "&gsrsearch=" + query +
-      "&gsrnamespace=6" +
-      "&gsrlimit=8" +
-      "&prop=imageinfo" +
-      "&iiprop=url" +
-      "&iiurlwidth=600" +
-      "&format=json" +
-      "&origin=*";
+        return prizes[a];
 
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error("Ошибка загрузки фотографии");
     }
 
-    const data = await response.json();
-
-    const pages = Object.values(
-      data.query?.pages || {}
-    );
-
-    const valid = pages.find(page => {
-      const title = (page.title || "").toLowerCase();
-
-      return (
-        title.includes("counter") ||
-        title.includes(player.name.toLowerCase()) ||
-        title.includes(player.real.split(" ")[0].toLowerCase())
-      ) && page.imageinfo?.[0]?.thumburl;
-    });
-
-    const image =
-      valid?.imageinfo?.[0]?.thumburl || null;
-
-    imageCache[player.name] = image;
-
-    return image;
-
-  } catch (error) {
-
-    console.warn(
-      "Не удалось загрузить фото:",
-      player.name,
-      error
-    );
-
-    imageCache[player.name] = null;
-
-    return null;
-  }
-}
-
-// ==================================
-// ЗАГРУЗКА ИЗОБРАЖЕНИЯ В КАРТОЧКУ
-// ==================================
-
-function makeFallback(player) {
-
-  const initials = player.name
-    .replace(/[^a-zA-Z0-9]/g, "")
-    .slice(0, 3);
-
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg"
-         width="600" height="500">
-      <rect width="100%" height="100%"
-            fill="#263449"/>
-      <circle cx="300" cy="190" r="95"
-              fill="#f5a623" opacity=".2"/>
-      <text x="50%" y="45%"
-            text-anchor="middle"
-            font-size="85"
-            font-family="Arial"
-            font-weight="bold"
-            fill="#f5a623">${initials}</text>
-      <text x="50%" y="75%"
-            text-anchor="middle"
-            font-size="27"
-            font-family="Arial"
-            fill="white">CS2 PLAYER</text>
-    </svg>
-  `;
-
-  return "data:image/svg+xml;charset=utf-8," +
-    encodeURIComponent(svg);
-}
-
-async function loadImage(player, img, questionId) {
-
-  const photo = await getPhoto(player);
-
-  if (questionId !== round - 1) return;
-
-  img.src = photo || makeFallback(player);
-
-  img.onerror = () => {
-    img.src = makeFallback(player);
-  };
-}
-
-// ==================================
-// НАЧАЛО ИГРЫ
-// ==================================
-
-function startGame() {
-
-  score = 0;
-  round = 0;
-  streak = 0;
-
-  $("score").textContent = 0;
-  $("streak").textContent = 0;
-
-  $("game").style.display = "block";
-  $("result").style.display = "none";
-
-  questions = shuffle(playersData);
-
-  nextQuestion();
-}
-
-// ==================================
-// НОВЫЙ ВОПРОС
-// ==================================
-
-function nextQuestion() {
-
-  if (round >= TOTAL) {
-    finishGame();
-    return;
-  }
-
-  answered = false;
-
-  currentPlayer = questions[round];
-
-  const questionId = round;
-
-  $("round").textContent =
-    (round + 1) + "/" + TOTAL;
-
-  $("nickname").textContent =
-    currentPlayer.name;
-
-  $("message").textContent = "";
-
-  $("next").classList.add("hidden");
-
-  $("progressBar").style.width =
-    (round / TOTAL * 100) + "%";
-
-  const opponent = shuffle(
-    playersData.filter(
-      player => player.name !== currentPlayer.name
-    )
-  )[0];
-
-  const choices = shuffle([
-    currentPlayer,
-    opponent
-  ]);
-
-  const container = $("players");
-
-  container.innerHTML = "";
-
-  choices.forEach(player => {
-
-    const card = document.createElement("button");
-
-    card.className = "player";
-
-    const img = document.createElement("img");
-
-    img.alt = "Фото игрока " + player.name;
-
-    img.src = makeFallback(player);
-
-    const name = document.createElement("span");
-
-    name.textContent = "Игрок CS2";
-
-    card.appendChild(img);
-    card.appendChild(name);
-
-    card.onclick = () => {
-      choosePlayer(player, card);
-    };
-
-    container.appendChild(card);
-
-    loadImage(player, img, questionId);
-
-  });
-
-  round++;
-}
-
-// ==================================
-// ВЫБОР ОТВЕТА
-// ==================================
-
-function choosePlayer(player, card) {
-
-  if (answered) return;
-
-  answered = true;
-
-  const cards = document.querySelectorAll(".player");
-
-  cards.forEach(button => {
-    button.disabled = true;
-  });
-
-  if (player.name === currentPlayer.name) {
-
-    score++;
-    streak++;
-
-    $("message").textContent =
-      "✅ ПРАВИЛЬНО! Отлично!";
-
-    $("message").style.color = "#20d889";
-
-    card.classList.add("correct");
-
-  } else {
-
-    streak = 0;
-
-    $("message").textContent =
-      "❌ Неправильно! Это " +
-      currentPlayer.name;
-
-    $("message").style.color = "#ff5555";
-
-    card.classList.add("wrong");
-
-    cards.forEach(button => {
-      if (
-        button.querySelector("img").alt.includes(
-          currentPlayer.name
-        )
-      ) {
-        button.classList.add("correct");
-      }
-    });
-
-  }
-
-  $("score").textContent = score;
-
-  $("streak").textContent = streak;
-
-  $("progressBar").style.width =
-    (round / TOTAL * 100) + "%";
-
-  cards.forEach(button => {
-    const img = button.querySelector("img");
-
-    const found = playersData.find(
-      p => img.alt === "Фото игрока " + p.name
-    );
-
-    if (found) {
-      button.querySelector("span").textContent =
-        found.name;
+    if (a === b || a === c || b === c) {
+        return 5;
     }
-  });
 
-  $("next").textContent =
-    round === TOTAL
-      ? "Посмотреть результат"
-      : "Следующий вопрос →";
-
-  $("next").classList.remove("hidden");
+    return 0;
 }
 
-// ==================================
-// ЗАВЕРШЕНИЕ ИГРЫ
-// ==================================
+// ВРАЩЕНИЕ
 
-function finishGame() {
+function spin() {
 
-  $("game").style.display = "none";
+    if (busy) return;
 
-  $("result").style.display = "block";
+    if (balance < COST) {
+        $("message").textContent =
+            "❌ Недостаточно квартир!";
+        $("message").className = "red";
+        return;
+    }
 
-  $("finalScore").textContent =
-    score + "/" + TOTAL;
+    busy = true;
 
-  let comment = "";
+    $("spinButton").disabled = true;
 
-  if (score === 20) {
+    balance -= COST;
+    spins++;
 
-    comment = "🔥 ЛЕГЕНДА CS2! 20 ИЗ 20!";
+    update();
 
-  } else if (score >= 17) {
+    $("message").textContent = "🎰 Барабаны вращаются...";
+    $("message").className = "";
 
-    comment = "🏆 Невероятно! Ты настоящий эксперт!";
+    let counter = 0;
 
-  } else if (score >= 14) {
+    const animation = setInterval(() => {
 
-    comment = "🔥 Отличный результат!";
+        $("reel1").textContent =
+            symbols[Math.floor(Math.random() * symbols.length)];
 
-  } else if (score >= 10) {
+        $("reel2").textContent =
+            symbols[Math.floor(Math.random() * symbols.length)];
 
-    comment = "👍 Хорошо! Ты знаешь профессионалов!";
+        $("reel3").textContent =
+            symbols[Math.floor(Math.random() * symbols.length)];
 
-  } else if (score >= 5) {
+        counter++;
 
-    comment = "🎮 Неплохо, но есть куда расти!";
+        if (counter >= 15) {
 
-  } else {
+            clearInterval(animation);
 
-    comment = "💪 Пора смотреть больше турниров CS2!";
+            finishSpin();
 
-  }
+        }
 
-  $("comment").textContent = comment;
+    }, 100);
 
-  $("progressBar").style.width = "100%";
 }
 
-// ==================================
-// ПОВТОРНАЯ ИГРА
-// ==================================
+// ЗАВЕРШЕНИЕ ВРАЩЕНИЯ
 
-function restart() {
-  startGame();
+function finishSpin() {
+
+    const a = symbols[Math.floor(Math.random() * symbols.length)];
+    const b = symbols[Math.floor(Math.random() * symbols.length)];
+    const c = symbols[Math.floor(Math.random() * symbols.length)];
+
+    $("reel1").textContent = a;
+    $("reel2").textContent = b;
+    $("reel3").textContent = c;
+
+    const prize = getPrize(a, b, c);
+
+    if (prize > 0) {
+
+        balance += prize;
+        earned += prize;
+        wins++;
+
+        $("message").textContent =
+            "🎉 ПОБЕДА! +" + prize + " квартир!";
+
+        $("message").className = "green";
+
+    } else {
+
+        $("message").textContent =
+            "😢 Не повезло! Попробуй ещё раз.";
+
+        $("message").className = "red";
+
+    }
+
+    update();
+
+    busy = false;
+
+    $("spinButton").disabled = false;
+
 }
 
-// ==================================
-// КНОПКА СЛЕДУЮЩЕГО ВОПРОСА
-// ==================================
+// БОНУС
 
-$("next").onclick = nextQuestion;
+function bonus() {
 
-// ==================================
-// ЗАПУСК
-// ==================================
+    if (bonusUsed) {
 
-startGame();
+        $("message").textContent =
+            "🎁 Ты уже получил свой бонус!";
+
+        return;
+
+    }
+
+    balance += 100;
+
+    bonusUsed = true;
+
+    $("message").textContent =
+        "🎉 Бонус получен: +100 квартир!";
+
+    $("message").className = "green";
+
+    update();
+
+}
+
+// СБРОС
+
+function resetGame() {
+
+    if (!confirm("Сбросить весь прогресс?")) return;
+
+    balance = 1000;
+    spins = 0;
+    wins = 0;
+    earned = 0;
+    bonusUsed = false;
+
+    update();
+
+    $("message").textContent =
+        "Новая игра началась! Удачи!";
+
+    $("message").className = "";
+
+}
+
+update();
 
 </script>
+
 </body>
 </html>
