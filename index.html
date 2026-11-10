@@ -5,34 +5,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Угадай игрока CS2</title>
+
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
   min-height: 100vh;
+  padding: 20px;
   background: #10131c;
   color: white;
   font-family: Arial, sans-serif;
   text-align: center;
-  padding: 25px 15px;
 }
 
 .container {
-  max-width: 900px;
+  max-width: 950px;
   margin: auto;
 }
 
 h1 {
   color: #f5a623;
-  font-size: clamp(28px, 5vw, 42px);
+  font-size: clamp(28px, 5vw, 43px);
 }
 
-.subtitle {
-  color: #aab2c0;
-}
+.subtitle { color: #aab2c0; }
 
 .panel {
   background: #1c2332;
@@ -42,18 +39,25 @@ h1 {
   border: 1px solid #343e52;
 }
 
+.stats {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 18px;
+}
+
 .nickname {
-  font-size: clamp(32px, 7vw, 55px);
+  font-size: clamp(35px, 7vw, 60px);
   color: #ffb52e;
   font-weight: bold;
-  margin: 20px;
+  margin: 25px 0;
 }
 
 .players {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 18px;
-  margin-top: 25px;
 }
 
 .player {
@@ -62,21 +66,21 @@ h1 {
   border-radius: 15px;
   overflow: hidden;
   cursor: pointer;
-  transition: .2s;
-  color: white;
   padding: 0;
+  color: white;
+  transition: .2s;
+  min-width: 0;
 }
 
-.player:hover {
+.player:hover:not(:disabled) {
   transform: translateY(-5px);
   border-color: #ffb52e;
 }
 
 .player img {
   width: 100%;
-  height: 300px;
+  height: 330px;
   object-fit: cover;
-  object-position: top center;
   display: block;
   background: #343e52;
 }
@@ -84,7 +88,7 @@ h1 {
 .player span {
   display: block;
   padding: 15px;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -96,7 +100,11 @@ h1 {
   border-color: #ff4545;
 }
 
-button {
+.player:disabled {
+  cursor: default;
+}
+
+button.action {
   background: #f5a623;
   color: #171717;
   padding: 14px 25px;
@@ -105,34 +113,22 @@ button {
   font-size: 17px;
   font-weight: bold;
   cursor: pointer;
-  margin: 10px;
+  margin: 12px;
 }
 
-button:hover {
+button.action:hover {
   background: #ffc45e;
 }
 
-.stats {
-  display: flex;
-  justify-content: space-around;
-  gap: 10px;
-  flex-wrap: wrap;
-  font-size: 18px;
-}
-
 #message {
-  min-height: 30px;
+  min-height: 35px;
   font-size: 20px;
-  margin: 20px;
+  margin: 20px 0;
 }
 
-#result {
-  display: none;
-}
+.hidden { display: none !important; }
 
-.hidden {
-  display: none !important;
-}
+#result { display: none; }
 
 .small {
   color: #8995a8;
@@ -140,22 +136,27 @@ button:hover {
   margin-top: 25px;
 }
 
+#progress {
+  height: 9px;
+  background: #343e52;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: #f5a623;
+  transition: width .3s;
+}
+
 @media(max-width: 550px) {
-  .players {
-    gap: 9px;
-  }
-
-  .player img {
-    height: 210px;
-  }
-
-  .player span {
-    font-size: 15px;
-  }
-
-  .panel {
-    padding: 14px;
-  }
+  body { padding: 10px; }
+  .panel { padding: 13px; }
+  .players { gap: 9px; }
+  .player img { height: 210px; }
+  .player span { font-size: 14px; }
 }
 </style>
 </head>
@@ -164,29 +165,32 @@ button:hover {
 <div class="container">
 
 <h1>🎯 УГАДАЙ ИГРОКА CS2</h1>
+
 <p class="subtitle">
-  Насколько хорошо ты знаешь профессиональную сцену Counter-Strike 2?
+Проверь, насколько хорошо ты знаешь профессиональную сцену Counter-Strike 2!
 </p>
 
 <div class="panel" id="game">
 
   <div class="stats">
     <div>🏆 Очки: <b id="score">0</b></div>
-    <div>📊 Вопрос: <b id="round">1/10</b></div>
+    <div>📊 Вопрос: <b id="round">1/20</b></div>
     <div>🔥 Серия: <b id="streak">0</b></div>
+  </div>
+
+  <div id="progress">
+    <div id="progressBar"></div>
   </div>
 
   <p>Кто из этих игроков имеет данный никнейм?</p>
 
-  <div class="nickname" id="nickname">
-    s1mple
-  </div>
+  <div class="nickname" id="nickname">s1mple</div>
 
   <div class="players" id="players"></div>
 
   <div id="message"></div>
 
-  <button id="next" class="hidden">
+  <button class="action hidden" id="next">
     Следующий вопрос →
   </button>
 
@@ -196,184 +200,512 @@ button:hover {
 
   <h2>🏆 ИГРА ОКОНЧЕНА!</h2>
 
-  <h1 id="finalScore">0/10</h1>
+  <h1 id="finalScore">0/20</h1>
 
   <p id="comment"></p>
 
-  <button onclick="restart()">
+  <button class="action" onclick="restart()">
     🔄 Играть заново
   </button>
 
 </div>
 
 <p class="small">
-  CS2 PLAYER QUIZ • Угадай профессионала!
+CS2 PLAYER QUIZ • 20 PROFESSIONAL PLAYERS
 </p>
 
 </div>
 
 <script>
+
+// ==================================
+// БАЗА ИГРОКОВ — 20 ПРОФЕССИОНАЛОВ
+// ==================================
+
 const playersData = [
+
   {
     name: "s1mple",
-    image: "https://img-cdn.hltv.org/playerbodyshot/RGemStZHTfFk8AAjkJrbTR.png?bg=3e4c54&h=800&ixlib=java-2.1.0&rect=128%2C8%2C447%2C447&s=360406db3a8157004b45ed4ee0e7b7ba&w=800"
+    real: "Oleksandr Kostyliev"
   },
   {
     name: "ZywOo",
-    image: "https://img-cdn.hltv.org/playerbodyshot/FU6cX0sBXlqI-UGYm_92sq.png?bg=3e4c54&h=800&ixlib=java-2.1.0&rect=140%2C12%2C451%2C451&s=1b3adc6e09a751be04ebc0a51814c1fd&w=800"
+    real: "Mathieu Herbaut"
+  },
+  {
+    name: "donk",
+    real: "Danil Kryshkovets"
+  },
+  {
+    name: "m0NESY",
+    real: "Ilya Osipov"
+  },
+  {
+    name: "ropz",
+    real: "Robin Kool"
+  },
+  {
+    name: "sh1ro",
+    real: "Dmitry Sokolov"
+  },
+  {
+    name: "NiKo",
+    real: "Nikola Kovac"
+  },
+  {
+    name: "frozen",
+    real: "David Cernansky"
+  },
+  {
+    name: "b1t",
+    real: "Valeriy Vakhovskiy"
+  },
+  {
+    name: "Twistzz",
+    real: "Russel Van Dulken"
+  },
+  {
+    name: "XANTARES",
+    real: "Ismailcan Dortkardes"
+  },
+  {
+    name: "YEKINDAR",
+    real: "Mareks Galinskis"
+  },
+  {
+    name: "KSCERATO",
+    real: "Kaike Cerato"
+  },
+  {
+    name: "Spinx",
+    real: "Lotan Giladi"
+  },
+  {
+    name: "flameZ",
+    real: "Shahar Shushan"
+  },
+  {
+    name: "molodoy",
+    real: "Danil Golubenko"
+  },
+  {
+    name: "mezii",
+    real: "William Merriman"
+  },
+  {
+    name: "Senzu",
+    real: "Azbayar Munkhbold"
+  },
+  {
+    name: "xertioN",
+    real: "Dorian Berman"
+  },
+  {
+    name: "torzsi",
+    real: "Adam Torzsas"
   }
+
 ];
+
+// ==================================
+// НАСТРОЙКИ ИГРЫ
+// ==================================
+
+const TOTAL = 20;
 
 let score = 0;
 let round = 0;
 let streak = 0;
+let questions = [];
 let currentPlayer = null;
 let answered = false;
-let questions = [];
+
+const imageCache = {};
 
 const $ = id => document.getElementById(id);
 
+// ==================================
+// ПЕРЕМЕШИВАНИЕ
+// ==================================
+
 function shuffle(array) {
-  return [...array].sort(() => Math.random() - 0.5);
-}
+  const result = [...array];
 
-function createQuestions() {
-  questions = [];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
 
-  for (let i = 0; i < 10; i++) {
-    questions.push(
-      playersData[i % playersData.length]
-    );
+    [result[i], result[j]] =
+      [result[j], result[i]];
   }
 
-  questions = shuffle(questions);
+  return result;
 }
 
+// ==================================
+// ПОИСК ФОТОГРАФИЙ
+// Wikimedia Commons
+// ==================================
+
+async function getPhoto(player) {
+
+  if (imageCache[player.name] !== undefined) {
+    return imageCache[player.name];
+  }
+
+  try {
+
+    const query = encodeURIComponent(
+      '"' + player.real + '" Counter-Strike'
+    );
+
+    const url =
+      "https://commons.wikimedia.org/w/api.php" +
+      "?action=query" +
+      "&generator=search" +
+      "&gsrsearch=" + query +
+      "&gsrnamespace=6" +
+      "&gsrlimit=8" +
+      "&prop=imageinfo" +
+      "&iiprop=url" +
+      "&iiurlwidth=600" +
+      "&format=json" +
+      "&origin=*";
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Ошибка загрузки фотографии");
+    }
+
+    const data = await response.json();
+
+    const pages = Object.values(
+      data.query?.pages || {}
+    );
+
+    const valid = pages.find(page => {
+      const title = (page.title || "").toLowerCase();
+
+      return (
+        title.includes("counter") ||
+        title.includes(player.name.toLowerCase()) ||
+        title.includes(player.real.split(" ")[0].toLowerCase())
+      ) && page.imageinfo?.[0]?.thumburl;
+    });
+
+    const image =
+      valid?.imageinfo?.[0]?.thumburl || null;
+
+    imageCache[player.name] = image;
+
+    return image;
+
+  } catch (error) {
+
+    console.warn(
+      "Не удалось загрузить фото:",
+      player.name,
+      error
+    );
+
+    imageCache[player.name] = null;
+
+    return null;
+  }
+}
+
+// ==================================
+// ЗАГРУЗКА ИЗОБРАЖЕНИЯ В КАРТОЧКУ
+// ==================================
+
+function makeFallback(player) {
+
+  const initials = player.name
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .slice(0, 3);
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="600" height="500">
+      <rect width="100%" height="100%"
+            fill="#263449"/>
+      <circle cx="300" cy="190" r="95"
+              fill="#f5a623" opacity=".2"/>
+      <text x="50%" y="45%"
+            text-anchor="middle"
+            font-size="85"
+            font-family="Arial"
+            font-weight="bold"
+            fill="#f5a623">${initials}</text>
+      <text x="50%" y="75%"
+            text-anchor="middle"
+            font-size="27"
+            font-family="Arial"
+            fill="white">CS2 PLAYER</text>
+    </svg>
+  `;
+
+  return "data:image/svg+xml;charset=utf-8," +
+    encodeURIComponent(svg);
+}
+
+async function loadImage(player, img, questionId) {
+
+  const photo = await getPhoto(player);
+
+  if (questionId !== round - 1) return;
+
+  img.src = photo || makeFallback(player);
+
+  img.onerror = () => {
+    img.src = makeFallback(player);
+  };
+}
+
+// ==================================
+// НАЧАЛО ИГРЫ
+// ==================================
+
 function startGame() {
+
   score = 0;
   round = 0;
   streak = 0;
 
-  $("score").textContent = score;
-  $("streak").textContent = streak;
+  $("score").textContent = 0;
+  $("streak").textContent = 0;
 
   $("game").style.display = "block";
   $("result").style.display = "none";
 
-  createQuestions();
+  questions = shuffle(playersData);
+
   nextQuestion();
 }
 
+// ==================================
+// НОВЫЙ ВОПРОС
+// ==================================
+
 function nextQuestion() {
-  if (round >= 10) {
+
+  if (round >= TOTAL) {
     finishGame();
     return;
   }
 
   answered = false;
+
   currentPlayer = questions[round];
 
-  $("round").textContent = (round + 1) + "/10";
-  $("nickname").textContent = currentPlayer.name;
+  const questionId = round;
+
+  $("round").textContent =
+    (round + 1) + "/" + TOTAL;
+
+  $("nickname").textContent =
+    currentPlayer.name;
+
   $("message").textContent = "";
+
   $("next").classList.add("hidden");
 
-  const choices = shuffle(playersData);
+  $("progressBar").style.width =
+    (round / TOTAL * 100) + "%";
+
+  const opponent = shuffle(
+    playersData.filter(
+      player => player.name !== currentPlayer.name
+    )
+  )[0];
+
+  const choices = shuffle([
+    currentPlayer,
+    opponent
+  ]);
 
   const container = $("players");
+
   container.innerHTML = "";
 
   choices.forEach(player => {
+
     const card = document.createElement("button");
+
     card.className = "player";
 
     const img = document.createElement("img");
-    img.src = player.image;
-    img.alt = "Игрок CS2";
-    img.onerror = () => {
-      img.alt = "Фото не загрузилось";
-      img.src = "";
-    };
+
+    img.alt = "Фото игрока " + player.name;
+
+    img.src = makeFallback(player);
 
     const name = document.createElement("span");
+
     name.textContent = "Игрок CS2";
 
     card.appendChild(img);
     card.appendChild(name);
 
-    card.onclick = () => choosePlayer(player, card);
+    card.onclick = () => {
+      choosePlayer(player, card);
+    };
 
     container.appendChild(card);
+
+    loadImage(player, img, questionId);
+
   });
-}
-
-function choosePlayer(player, card) {
-  if (answered) return;
-
-  answered = true;
-
-  if (player.name === currentPlayer.name) {
-    score++;
-    streak++;
-
-    $("message").textContent = "✅ ПРАВИЛЬНО! Отлично!";
-    $("message").style.color = "#20d889";
-    card.classList.add("correct");
-  } else {
-    streak = 0;
-
-    $("message").textContent =
-      "❌ Неправильно! Это " + currentPlayer.name;
-
-    $("message").style.color = "#ff5555";
-
-    card.classList.add("wrong");
-  }
-
-  $("score").textContent = score;
-  $("streak").textContent = streak;
-
-  document.querySelectorAll(".player").forEach(button => {
-    button.disabled = true;
-  });
-
-  $("next").textContent =
-    round === 9 ? "Посмотреть результат" : "Следующий вопрос →";
-
-  $("next").classList.remove("hidden");
 
   round++;
 }
 
+// ==================================
+// ВЫБОР ОТВЕТА
+// ==================================
+
+function choosePlayer(player, card) {
+
+  if (answered) return;
+
+  answered = true;
+
+  const cards = document.querySelectorAll(".player");
+
+  cards.forEach(button => {
+    button.disabled = true;
+  });
+
+  if (player.name === currentPlayer.name) {
+
+    score++;
+    streak++;
+
+    $("message").textContent =
+      "✅ ПРАВИЛЬНО! Отлично!";
+
+    $("message").style.color = "#20d889";
+
+    card.classList.add("correct");
+
+  } else {
+
+    streak = 0;
+
+    $("message").textContent =
+      "❌ Неправильно! Это " +
+      currentPlayer.name;
+
+    $("message").style.color = "#ff5555";
+
+    card.classList.add("wrong");
+
+    cards.forEach(button => {
+      if (
+        button.querySelector("img").alt.includes(
+          currentPlayer.name
+        )
+      ) {
+        button.classList.add("correct");
+      }
+    });
+
+  }
+
+  $("score").textContent = score;
+
+  $("streak").textContent = streak;
+
+  $("progressBar").style.width =
+    (round / TOTAL * 100) + "%";
+
+  cards.forEach(button => {
+    const img = button.querySelector("img");
+
+    const found = playersData.find(
+      p => img.alt === "Фото игрока " + p.name
+    );
+
+    if (found) {
+      button.querySelector("span").textContent =
+        found.name;
+    }
+  });
+
+  $("next").textContent =
+    round === TOTAL
+      ? "Посмотреть результат"
+      : "Следующий вопрос →";
+
+  $("next").classList.remove("hidden");
+}
+
+// ==================================
+// ЗАВЕРШЕНИЕ ИГРЫ
+// ==================================
+
 function finishGame() {
+
   $("game").style.display = "none";
+
   $("result").style.display = "block";
 
-  $("finalScore").textContent = score + "/10";
+  $("finalScore").textContent =
+    score + "/" + TOTAL;
 
   let comment = "";
 
-  if (score === 10) {
-    comment = "🔥 Легенда CS2! Ни одной ошибки!";
-  } else if (score >= 8) {
-    comment = "🏆 Отличный результат! Ты хорошо знаешь CS2!";
+  if (score === 20) {
+
+    comment = "🔥 ЛЕГЕНДА CS2! 20 ИЗ 20!";
+
+  } else if (score >= 17) {
+
+    comment = "🏆 Невероятно! Ты настоящий эксперт!";
+
+  } else if (score >= 14) {
+
+    comment = "🔥 Отличный результат!";
+
+  } else if (score >= 10) {
+
+    comment = "👍 Хорошо! Ты знаешь профессионалов!";
+
   } else if (score >= 5) {
-    comment = "👍 Неплохо! Но есть куда расти!";
+
+    comment = "🎮 Неплохо, но есть куда расти!";
+
   } else {
-    comment = "🎮 Пора смотреть больше турниров!";
+
+    comment = "💪 Пора смотреть больше турниров CS2!";
+
   }
 
   $("comment").textContent = comment;
+
+  $("progressBar").style.width = "100%";
 }
+
+// ==================================
+// ПОВТОРНАЯ ИГРА
+// ==================================
 
 function restart() {
   startGame();
 }
 
+// ==================================
+// КНОПКА СЛЕДУЮЩЕГО ВОПРОСА
+// ==================================
+
 $("next").onclick = nextQuestion;
 
-startGame();
-</script>
+// ==================================
+// ЗАПУСК
+// ==================================
 
+startGame();
+
+</script>
 </body>
 </html>
